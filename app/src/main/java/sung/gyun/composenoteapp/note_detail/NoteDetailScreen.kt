@@ -35,24 +35,16 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteDetailScreen(
-    noteId: Long? = null,
+    noteId: Long = -1L,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     viewModel: NoteDetailViewModel = hiltViewModel()
 ) {
     val state = viewModel._noteState.collectAsState()
 
-    var title by remember {
-        mutableStateOf("")
-    }
-    var content by remember {
-        mutableStateOf("")
-    }
     LaunchedEffect(key1 = true) {
-        if (noteId != null) {
+        if (noteId != -1L) {
             viewModel.getNoteById(noteId)
-            title = state.value.title
-            content = state.value.content
         }
     }
 
@@ -62,8 +54,6 @@ fun NoteDetailScreen(
         topBar = {
             TopBar(navController, title = if (state.value.id == -1L) "새 메모" else "메모 수정") {
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREAN)
-                state.value.title = title
-                state.value.content = content
                 if (state.value.title.isEmpty()) {
                     Toast.makeText(context, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
                 } else {
@@ -95,6 +85,8 @@ fun NoteDetailScreen(
             modifier = Modifier
                 .padding(top = it.calculateTopPadding()),
         ) {
+
+            val titleMaxLength = 100
             BasicTextField(
                 modifier = Modifier
                     .height(
@@ -102,9 +94,11 @@ fun NoteDetailScreen(
                             .calculateTopPadding()
                             .times(0.75f))
                     ),
-                value = title,
+                value = state.value.title,
                 onValueChange = { t ->
-                    title = t
+                    if(t.length < titleMaxLength) {
+                        viewModel.updateTitle(t)
+                    }
                 },
                 textStyle = TextStyle(
                     fontSize = 20.sp,
@@ -123,9 +117,9 @@ fun NoteDetailScreen(
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
-                        if(title.isEmpty()) {
+                        if(state.value.title.isEmpty()) {
                             Text(
-                                text = "제목을 입력해주세요...",
+                                text = "제목을 입력해주세요...(한글 최대 50자)",
                                 style = HintTextStyle(),
                             )
                         }
@@ -137,7 +131,7 @@ fun NoteDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                value = content,
+                value = state.value.content,
                 placeholder = {
                     Text(
                         text = "메모 내용을 입력해주세요...",
@@ -145,7 +139,7 @@ fun NoteDetailScreen(
                     )
                 },
                 onValueChange = { c ->
-                    content = c
+                    viewModel.updateContent(c)
                 })
         }
     }

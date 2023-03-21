@@ -6,7 +6,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     suspend fun getAll() = noteDao.getAll()
 
-    suspend fun getNoteById(id: Long): Note? {
+    suspend fun getNoteById(id: Long): Note {
         return noteDao.getById(id)
     }
 

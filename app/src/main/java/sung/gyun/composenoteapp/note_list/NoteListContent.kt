@@ -1,5 +1,6 @@
 package sung.gyun.composenoteapp.note_list
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,13 +23,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import sung.gyun.composenoteapp.data.NoteEntity
-import sung.gyun.composenoteapp.database.Note
 import sung.gyun.composenoteapp.ui.theme.ComposeNoteAppTheme
 import sung.gyun.composenoteapp.util.Utils
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NoteItemScreen(
+fun NoteListContent(
     modifier: Modifier = Modifier,
     note: NoteEntity,
     noteHeight: Dp,
@@ -76,11 +77,12 @@ fun NoteItemScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                 ),
-                overflow = TextOverflow.Ellipsis
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
                 modifier = Modifier.padding(bottom = if (isTablet) 32.dp else 16.dp),
-                text = note.createAt,
+                text = note.createdDay(),
                 style = TextStyle(
                     color = Color.Black,
                     fontSize = 14.sp,
@@ -95,9 +97,9 @@ fun NoteItemScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun NoteItemPreview() {
+fun NoteListContentPreview() {
     ComposeNoteAppTheme {
-        NoteItemScreen(
+        NoteListContent(
             note = NoteEntity(
                 1,
                 "Note Title",

@@ -9,5 +9,6 @@ object Utils {
     fun screenHeight(config: Configuration) = config.screenHeightDp
     fun isLargeScreen(config: Configuration) = config.screenWidthDp > 600
 
+    fun isPortrait(orientation: Int) = orientation == Configuration.ORIENTATION_PORTRAIT
 
 }

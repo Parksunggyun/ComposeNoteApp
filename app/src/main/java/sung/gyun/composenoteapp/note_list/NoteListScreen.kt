@@ -1,11 +1,13 @@
 package sung.gyun.composenoteapp.note_list
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.*
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +42,7 @@ import java.util.*
 
 @Composable
 fun NoteListScreen(
+    windowSize: WindowWidthSizeClass,
     title: String,
     navController: NavHostController,
     viewModel: NoteListViewModel = hiltViewModel()
@@ -52,6 +56,16 @@ fun NoteListScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     // BackOnPressed() 뒤로가기 두번 누르면 앱 종료
+    val config = LocalConfiguration.current
+    val context = LocalContext.current
+    val isTablet = Utils.isLargeScreen(config)
+    val gridCellCount = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 2
+        WindowWidthSizeClass.Medium -> 3
+        WindowWidthSizeClass.Expanded -> 4
+        else -> 2
+    }
+    val paddings = if (isTablet) 32.dp else 16.dp
     Scaffold(
         modifier = Modifier,
         scaffoldState = scaffoldState,
@@ -88,11 +102,6 @@ fun NoteListScreen(
                     .padding(top = it.calculateTopPadding())
                     .fillMaxSize(),
             ) {
-                val config = LocalConfiguration.current
-                val context = LocalContext.current
-                val isTablet = Utils.isLargeScreen(config)
-                val gridCellCount = if (isTablet) 4 else 2
-                val paddings = if (isTablet) 32.dp else 16.dp
                 if (state.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -129,14 +138,14 @@ fun NoteListScreen(
                             verticalArrangement = Arrangement.spacedBy(paddings),
                             horizontalArrangement = Arrangement.spacedBy(paddings),
                         ) {
-                            items(state.size) { idx ->
-                                val note = state[idx]
-                                NoteItemScreen(
-                                    note = note,
+                            items(state, key = { noteItem -> noteItem.id!! }) { noteItem ->
+                                Log.e("NoteListScreen", "${noteItem.id}")
+                                NoteListContent(
+                                    note = noteItem,
                                     noteHeight = (Utils.screenWidth(config) / gridCellCount).dp,
                                     onNoteClick = {
                                         // 메모 페이지로 이동
-                                        navController.navigate("note_detail/${note.id}")
+                                        navController.navigate("note_detail/${noteItem.id}")
                                     },
                                     onNoteLongClick = {
                                         //Toast.makeText(context, "Long clicked", Toast.LENGTH_SHORT).show()
@@ -209,6 +218,6 @@ fun BackOnPressed() {
 @Composable
 fun MainScreenPreview() {
     ComposeNoteAppTheme {
-        NoteListScreen("모든 노트", rememberNavController())
+        NoteListScreen(WindowWidthSizeClass.Compact, "모든 노트", rememberNavController())
     }
 }

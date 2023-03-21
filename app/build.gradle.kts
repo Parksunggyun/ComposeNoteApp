@@ -95,4 +95,5 @@ dependencies {
 
     // Navigation Animator
     implementation("com.google.accompanist:accompanist-navigation-animation:0.29.2-rc")
+    implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
 }

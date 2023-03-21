@@ -8,7 +8,7 @@ import androidx.room.Update
 
 @Dao
 interface NoteDao {
-    @Query("SELECT * from note_list")
+    @Query("SELECT * from note_list ORDER by create_at DESC")
     suspend fun getAll(): List<Note>
 
     @Query("SELECT * from note_list where itemId = :id")
